@@ -19,19 +19,24 @@ namespace online_store_app.Models.Entity
       public string? IdentityNumber { get; set; }
 
       [Required]
-      [Column("birth_date", Order = 3)]
+      [Column("name", Order = 3)]
+      [MaxLength(255)]
+      public string? Name { get; set; }
+
+      [Required]
+      [Column("birth_date", Order = 4)]
       public DateTime? BirthDate { get; set; }
 
-      [Column("gender", Order = 4)]
+      [Column("gender", Order = 5)]
       [MaxLength(1), MinLength(1)]
       public string? Gender { get; set; }
 
       [Required]
-      [Column("phone_number", Order = 5)]
+      [Column("phone_number", Order = 6)]
       [MaxLength(20)]
       public string? PhoneNumber { get; set; }
 
-      [Column("address")]
+      [Column("address", Order = 7)]
       [MaxLength(500)]
       public string? Address { get; set; }
 
