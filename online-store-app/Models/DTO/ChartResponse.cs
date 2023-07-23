@@ -1,4 +1,6 @@
-﻿namespace online_store_app.Models.DTO
+﻿using online_store_app.Models.Entity;
+
+namespace online_store_app.Models.DTO
 {
    [GraphQLName("chart_response")]
    public class ChartResponse
@@ -19,9 +21,9 @@
       public int? TotalPrice { get; set; }
 
       [GraphQLName("user")]
-      public UserResponse? User { get; set; }
+      public User? User { get; set; }
 
       [GraphQLName("product")]
-      public ProductResponse? Product { get; set; }
+      public Product? Product { get; set; }
    }
 }

@@ -3,6 +3,7 @@ using online_store_app.Data;
 using online_store_app.Repositories;
 using online_store_app.Resolver;
 using online_store_app.Services.Chart;
+using online_store_app.Services.Product;
 using online_store_app.Services.User;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,10 +15,13 @@ builder.Services.AddDbContext<OnlineStoreContext>(x => x.UseMySql(connectionStri
 // register layer Repository
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<ChartRepository>();
+builder.Services.AddScoped<ProductRepository>();
 
 // register service layer
+// builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChartService, ChartService>();
+
 
 // add graphQL server
 builder.Services.AddGraphQLServer().AddQueryType<UserQueryType>().AddMutationConventions();

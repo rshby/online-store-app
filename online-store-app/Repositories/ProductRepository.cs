@@ -6,32 +6,33 @@ using System.Transactions;
 
 namespace online_store_app.Repositories
 {
-   public class ChartRepository
+   public class ProductRepository
    {
       // global variable
       private readonly OnlineStoreContext _db;
 
       // create constructor
-      public ChartRepository(OnlineStoreContext db)
+      public ProductRepository(OnlineStoreContext db)
       {
          this._db = db;
       }
 
-      // method get data charts by user_id
-      public async Task<List<Chart>?> GetChartsByUserIdAsync([Required] TransactionScope tr, int? userId)
+      // method get data all products
+      public async Task<List<Product>?> GetAllProductsAsync([Required] TransactionScope tr)
       {
          try
          {
-            List<Chart>? charts = await _db.Charts.AsQueryable().Where(x => x.UserId == userId).ToListAsync();
+            // get all data
+            List<Product>? products = await _db.Products.AsQueryable().ToListAsync();
 
             // jika data tidak ditemukan
-            if (charts == null || charts.Count == 0)
+            if (products == null || products.Count == 0)
             {
                return null;
             }
 
-            // success get all charts by user_id
-            return charts;
+            // success get all data products
+            return products;
          }
          catch (Exception err)
          {
@@ -42,22 +43,22 @@ namespace online_store_app.Repositories
          }
       }
 
-      // method get all data charts
-      public async Task<List<Chart>?> GetAllChartsAsync([Required] TransactionScope tr)
+      // method get products by Id
+      public async Task<Product?> GetProductByIdAsync([Required] TransactionScope tr, int? id)
       {
          try
          {
-            // select data from database
-            List<Chart>? charts = await _db.Charts.AsQueryable().ToListAsync();
+            // get data products by id
+            Product? product = await _db.Products.AsQueryable().Where(x => x.Id == id).FirstOrDefaultAsync();
 
             // jika data tidak ditemukan
-            if (charts == null || charts.Count == 0)
+            if (product == null)
             {
                return null;
             }
 
-            // success get all data charts
-            return charts;
+            // success get data product
+            return product;
          }
          catch (Exception err)
          {
