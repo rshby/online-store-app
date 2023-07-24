@@ -9,5 +9,8 @@ namespace online_store_app.Services.Chart
 
       // method to get all data charts
       public Task<List<ChartResponse>?> GetAllChartsAsync();
+
+      // method to add new chart
+      public Task<ChartResponse?> AddNewChartAsync(AddChartRequest? request);
    }
 }

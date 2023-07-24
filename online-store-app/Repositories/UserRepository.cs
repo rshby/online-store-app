@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using online_store_app.Data;
 using online_store_app.Models.Entity;
+using System.ComponentModel.DataAnnotations;
 using System.Transactions;
 
 namespace online_store_app.Repositories
@@ -17,7 +18,7 @@ namespace online_store_app.Repositories
       }
 
       // method to get all data users
-      public async Task<List<User>?> GetAllUsersAsync(TransactionScope tr)
+      public async Task<List<User>?> GetAllUsersAsync([Required] TransactionScope tr)
       {
          try
          {
@@ -45,7 +46,7 @@ namespace online_store_app.Repositories
       }
 
       // method to get data users by id
-      public async Task<User?> GetUserByIdAsync(TransactionScope tr, int? id)
+      public async Task<User?> GetUserByIdAsync([Required] TransactionScope tr, int? id)
       {
          try
          {
@@ -73,7 +74,7 @@ namespace online_store_app.Repositories
       }
 
       // method to get data user by identity_number
-      public async Task<User?> GetUserByIdentityNumberAsync(TransactionScope tr, string? identityNumber)
+      public async Task<User?> GetUserByIdentityNumberAsync([Required] TransactionScope tr, string? identityNumber)
       {
          try
          {
@@ -98,11 +99,31 @@ namespace online_store_app.Repositories
       }
 
       // method to insert/add new data user
-      public async Task<User?> AddUserAsync(TransactionScope tr, User? newUser)
+      public async Task<User?> AddUserAsync([Required] TransactionScope tr, User? newUser)
       {
          try
          {
             await _db.Users.AddAsync(newUser);
+
+            await _db.SaveChangesAsync();
+
+            return newUser;
+         }
+         catch (Exception err)
+         {
+            tr.Dispose();
+
+            // send error message
+            throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+         }
+      }
+
+      // method to update data user
+      public async Task<User?> UpdateUserAsync([Required] TransactionScope tr, User? oldUser, User? newUser)
+      {
+         try
+         {
+            _db.Users.Entry(oldUser).CurrentValues.SetValues(newUser);
 
             await _db.SaveChangesAsync();
 

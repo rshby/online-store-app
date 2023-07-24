@@ -177,5 +177,70 @@ namespace online_store_app.Services.User
             }
          }
       }
+
+      // method to update data user
+      public async Task<UserResponse?> UpdateUserAsync(UpdateUserRequest? request)
+      {
+         using (var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+         {
+            try
+            {
+               // cek id
+               var oldUser = await _userRepo.GetUserByIdAsync(tr, request.Id);
+
+               // jika user tidak ditemukan
+               if (oldUser == null)
+               {
+                  tr.Dispose();
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("user not found").Build());
+               }
+
+               // create entity
+               var newUser = new Models.Entity.User()
+               {
+                  Id = request.Id,
+                  IdentityNumber = request.IdentityNumber,
+                  Name = request.Name,
+                  BirthDate = DateTime.ParseExact($"{request.BirthDate} 00:00:00", "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture),
+                  Gender = request.Gender,
+                  PhoneNumber = request.PhoneNumber,
+                  Address = request.Address
+               };
+
+               // call procedure Add in Repository
+               var resultInsert = await _userRepo.UpdateUserAsync(tr, oldUser, newUser);
+
+               // mapping to DTO
+               UserResponse? response = new UserResponse()
+               {
+                  Id = resultInsert?.Id,
+                  IdentityNumber = resultInsert?.IdentityNumber,
+                  Name = resultInsert?.Name,
+                  BirthDate = ((DateTime)resultInsert.BirthDate).ToString("yyyy-MM-dd"),
+                  Gender = resultInsert?.Gender,
+                  PhoneNumber = resultInsert?.PhoneNumber,
+                  Address = resultInsert?.Address,
+                  Charts = _chartRepo.GetChartsByUserIdAsync(tr, resultInsert?.Id).Result,
+               };
+
+               if (response.Charts != null)
+               {
+                  foreach (var data in response.Charts)
+                  {
+                     data.Product = _productRepo.GetProductByIdAsync(tr, data.ProductId).Result;
+                  }
+               }
+
+               // success
+               tr.Complete();
+               return response;
+            }
+            catch (Exception err)
+            {
+               tr.Dispose();
+               throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+            }
+         }
+      }
    }
 }

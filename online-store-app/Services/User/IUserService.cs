@@ -12,5 +12,8 @@ namespace online_store_app.Services.User
 
       // method add new user data
       public Task<UserResponse?> AddUserAsync(AddUserRequest? request);
+
+      // method to update data user 
+      public Task<UserResponse?> UpdateUserAsync(UpdateUserRequest? request);
    }
 }

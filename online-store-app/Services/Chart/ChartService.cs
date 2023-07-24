@@ -55,7 +55,7 @@ namespace online_store_app.Services.Chart
                // return
                return response;
             }
-            catch(Exception err)
+            catch (Exception err)
             {
                tr.Dispose();
 
@@ -99,7 +99,71 @@ namespace online_store_app.Services.Chart
                tr.Complete();
                return responses;
             }
-            catch(Exception err)
+            catch (Exception err)
+            {
+               tr.Dispose();
+
+               // send error message
+               throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+            }
+         }
+      }
+
+      // method to add new chart
+      public async Task<ChartResponse?> AddNewChartAsync(AddChartRequest? request)
+      {
+         using (var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+         {
+            try
+            {
+               // validasi user_id
+               var findUser = await _userRepo.GetUserByIdAsync(tr, request?.UserId);
+
+               // jika user tidak ada
+               if (findUser == null)
+               {
+                  tr.Dispose();
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("user not found").Build());
+               }
+
+               // validasi product_id
+               var findProduct = await _productRepo.GetProductByIdAsync(tr, request?.ProductId);
+
+               // jika product tidak ditemukan
+               if (findProduct == null)
+               {
+                  tr.Dispose();
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("product not found").Build());
+               }
+
+               // create entity
+               var newChart = new Models.Entity.Chart()
+               {
+                  UserId = request?.UserId,
+                  ProductId = request?.ProductId,
+                  Amount = request?.Amount,
+                  TotalPrice = request?.Amount * findProduct.Price
+               };
+
+               // call procedure insert in Repository
+               var resultInsert = await _chartRepo.AddChartAsync(tr, newChart);
+
+               // success add new chart
+               ChartResponse? response = new ChartResponse()
+               {
+                  Id = resultInsert?.Id,
+                  UserId = request?.UserId,
+                  ProductId = resultInsert?.ProductId,
+                  Amount = resultInsert?.Amount,
+                  TotalPrice = resultInsert?.TotalPrice,
+                  User = findUser,
+                  Product = findProduct
+               };
+
+               tr.Complete();
+               return response;
+            }
+            catch (Exception err)
             {
                tr.Dispose();
 

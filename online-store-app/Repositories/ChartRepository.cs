@@ -67,5 +67,25 @@ namespace online_store_app.Repositories
             throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
          }
       }
+
+      // method add new data chart
+      public async Task<Chart?> AddChartAsync([Required] TransactionScope tr, Chart? newChart)
+      {
+         try
+         {
+            await _db.Charts.AddAsync(newChart);
+
+            await _db.SaveChangesAsync();
+
+            return newChart;
+         }
+         catch (Exception err)
+         {
+            tr.Dispose();
+
+            // send error message
+            throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+         }
+      }
    }
 }
