@@ -46,9 +46,12 @@ namespace online_store_app.Services.User
                // add product
                foreach (var data in response)
                {
-                  foreach (var chart in data.Charts)
+                  if (data.Charts != null)
                   {
-                     chart.Product = _productRepo.GetProductByIdAsync(tr, chart.ProductId).Result;
+                     foreach (var chart in data.Charts)
+                     {
+                        chart.Product = _productRepo.GetProductByIdAsync(tr, chart.ProductId).Result;
+                     }
                   }
                }
 
@@ -64,6 +67,7 @@ namespace online_store_app.Services.User
          }
       }
 
+      // method get data user by id
       public async Task<UserResponse?> GetUserByIdAsync(int? id)
       {
          using (var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -96,14 +100,73 @@ namespace online_store_app.Services.User
                };
 
                // add product in each chart
-               foreach (var chart in response.Charts)
+               if (response.Charts != null)
                {
-                  chart.Product = await _productRepo.GetProductByIdAsync(tr, chart.Id);
+                  foreach (var chart in response.Charts)
+                  {
+                     chart.Product = await _productRepo.GetProductByIdAsync(tr, chart.Id);
+                  }
                }
 
                // success
                tr.Complete();
                return response;
+            }
+            catch (Exception err)
+            {
+               tr.Dispose();
+
+               // send error message
+               throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+            }
+         }
+      }
+
+      // method to add new data user
+      public async Task<UserResponse?> AddUserAsync(AddUserRequest? request)
+      {
+         using (var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+         {
+            try
+            {
+               // cek data dengan identity_number
+               var cekuser = await _userRepo.GetUserByIdentityNumberAsync(tr, request.IdentityNumber);
+
+               // jika data sudah ada
+               if (cekuser != null)
+               {
+                  tr.Dispose();
+
+                  // send error bad request
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("data with same identity_number already exist in our database").Build());
+               }
+
+               // create entity
+               var newUser = new Models.Entity.User()
+               {
+                  IdentityNumber = request.IdentityNumber,
+                  Name = request.Name,
+                  BirthDate = DateTime.ParseExact($"{request.BirthDate} 00:00:00", "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture),
+                  Gender = request.Gender,
+                  PhoneNumber = request.PhoneNumber,
+                  Address = request.Address,
+               };
+
+               // call procedure insert in Repository
+               var resultInsert = await _userRepo.AddUserAsync(tr, newUser);
+
+               // mapping to DTO
+               tr.Complete();
+               return new UserResponse()
+               {
+                  Id = resultInsert?.Id,
+                  IdentityNumber = resultInsert?.IdentityNumber,
+                  Name = resultInsert?.Name,
+                  BirthDate = ((DateTime)resultInsert?.BirthDate).ToString("yyyy-MM-dd"),
+                  Gender = resultInsert?.Gender,
+                  PhoneNumber = resultInsert?.PhoneNumber,
+                  Address = resultInsert?.Address,
+               };
             }
             catch (Exception err)
             {

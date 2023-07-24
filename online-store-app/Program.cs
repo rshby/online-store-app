@@ -24,7 +24,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 
 
 // add graphQL server
-builder.Services.AddGraphQLServer().AddQueryType<UserQueryType>().AddMutationConventions();
+builder.Services.AddGraphQLServer().AddQueryType<UserQueryType>().AddMutationType<OnlineStoreMutationType>().AddMutationConventions();
 
 // Add services to the container.
 

@@ -24,7 +24,7 @@ namespace online_store_app.Repositories
             List<User>? users = await _db.Users.AsQueryable().ToListAsync();
 
             // cek jika data nasabah tidak ditemukan
-            if(users == null || users.Count == 0)
+            if (users == null || users.Count == 0)
             {
                tr.Dispose();
 
@@ -63,7 +63,52 @@ namespace online_store_app.Repositories
             // success get data users by Id
             return user;
          }
-         catch(Exception err)
+         catch (Exception err)
+         {
+            tr.Dispose();
+
+            // send error message
+            throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+         }
+      }
+
+      // method to get data user by identity_number
+      public async Task<User?> GetUserByIdentityNumberAsync(TransactionScope tr, string? identityNumber)
+      {
+         try
+         {
+            User? user = await _db.Users.AsQueryable().FirstOrDefaultAsync(x => x.IdentityNumber == identityNumber);
+
+            // jika data tidak ditemukan
+            if (user == null)
+            {
+               return null;
+            }
+
+            // success get data
+            return user;
+         }
+         catch (Exception err)
+         {
+            tr.Dispose();
+
+            // send error message
+            throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+         }
+      }
+
+      // method to insert/add new data user
+      public async Task<User?> AddUserAsync(TransactionScope tr, User? newUser)
+      {
+         try
+         {
+            await _db.Users.AddAsync(newUser);
+
+            await _db.SaveChangesAsync();
+
+            return newUser;
+         }
+         catch (Exception err)
          {
             tr.Dispose();
 
