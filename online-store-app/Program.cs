@@ -13,14 +13,14 @@ string? connectionString = builder.Configuration.GetConnectionString("MySQLConne
 builder.Services.AddDbContext<OnlineStoreContext>(x => x.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)), ServiceLifetime.Transient);
 
 // register layer Repository
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<ChartRepository>();
-builder.Services.AddScoped<ProductRepository>();
+builder.Services.AddTransient<UserRepository>();
+builder.Services.AddTransient<ChartRepository>();
+builder.Services.AddTransient<ProductRepository>();
 
 // register service layer
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IChartService, ChartService>();
-builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IChartService, ChartService>();
+builder.Services.AddTransient<IProductService, ProductService>();
 
 
 // add graphQL server

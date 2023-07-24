@@ -15,6 +15,46 @@ namespace online_store_app.Services.Product
          this._productRepo = productRepo;
       }
 
+      // method to add new product
+      public async Task<ProductResponse?> AddProductAsync(AddProductRequest? request)
+      {
+         using (var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+         {
+            try
+            {
+               // create entity
+               var newProduct = new Models.Entity.Product()
+               {
+                  Brand = request?.Brand,
+                  Name = request?.Name,
+                  Price = request?.Price,
+                  Stock = request?.Stock
+               };
+
+               // call procedure add in Repository
+               var resultInsert = await _productRepo.AddProductAsync(tr, newProduct);
+
+               // mapping to DTO
+               tr.Complete();
+               return new ProductResponse()
+               {
+                  Id = resultInsert?.Id,
+                  Brand = resultInsert?.Brand,
+                  Name = resultInsert?.Name,
+                  Price = resultInsert?.Price,
+                  Stock = resultInsert?.Stock,
+               };
+            }
+            catch (Exception err)
+            {
+               tr.Dispose();
+
+               // send error message
+               throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+            }
+         }
+      }
+
       // method get all data products
       public async Task<List<ProductResponse>?> GetAllProductsAsync()
       {
@@ -100,5 +140,6 @@ namespace online_store_app.Services.Product
             }
          }
       }
+
    }
 }

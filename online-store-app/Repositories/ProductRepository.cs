@@ -68,5 +68,25 @@ namespace online_store_app.Repositories
             throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
          }
       }
+
+      // method insert/add new product
+      public async Task<Product?> AddProductAsync([Required] TransactionScope tr, [Required] Product? newProduct)
+      {
+         try
+         {
+            await _db.Products.AddAsync(newProduct);
+
+            await _db.SaveChangesAsync();
+
+            return newProduct;
+         }
+         catch (Exception err)
+         {
+            tr.Dispose();
+
+            // send error message
+            throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+         }
+      }
    }
 }

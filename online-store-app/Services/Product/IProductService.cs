@@ -9,5 +9,8 @@ namespace online_store_app.Services.Product
 
       // method to get data product by Id
       public Task<ProductResponse?> GetProductByIdAsync(int? id);
+
+      // method to insert/add new data product
+      public Task<ProductResponse?> AddProductAsync(AddProductRequest? request);
    }
 }
