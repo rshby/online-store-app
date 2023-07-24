@@ -15,14 +15,17 @@ namespace online_store_app.Resolver
 
       // handler to add new data product
       [GraphQLName("add_product")]
+      [UseMutationConvention]
       public async Task<ProductResponse?> AddProductAsync([Service] IProductService productService, [Required] AddProductRequest? request) => await productService.AddProductAsync(request);
 
       // handler to add new data chart
       [GraphQLName("add_chart")]
+      [UseMutationConvention]
       public async Task<ChartResponse?> AddChartAsync([Service] IChartService chartService, [Required] AddChartRequest? request) => await chartService.AddNewChartAsync(request);
 
       // handler to update data user
       [GraphQLName("update_user")]
+      [UseMutationConvention]
       public async Task<UserResponse?> UpdateUserAsync([Service] IUserService userService, [Required] UpdateUserRequest? request) => await userService.UpdateUserAsync(request);
    }
 }
