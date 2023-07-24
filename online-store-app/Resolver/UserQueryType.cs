@@ -1,6 +1,7 @@
 ﻿using online_store_app.Models.DTO;
 using online_store_app.Repositories;
 using online_store_app.Services.Chart;
+using online_store_app.Services.Product;
 using online_store_app.Services.User;
 using System.ComponentModel.DataAnnotations;
 using System.Transactions;
@@ -24,5 +25,13 @@ namespace online_store_app.Resolver
       // handler get all data charts
       [GraphQLName("charts")]
       public async Task<List<ChartResponse>?> GetAllChartsAsync([Service] IChartService chartService) => await chartService.GetAllChartsAsync();
+
+      // handler get all products
+      [GraphQLName("prodcts")]
+      public async Task<List<ProductResponse>?> GetAllProductsAsync([Service] IProductService productService) => await productService.GetAllProductsAsync();
+
+      // handler get product by id
+      [GraphQLName("product")]
+      public async Task<ProductResponse?> GetProductByIdAsync([Service] IProductService productService, [Required] int? id) => await productService.GetProductByIdAsync(id);
    }
 }

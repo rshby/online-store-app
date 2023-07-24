@@ -18,9 +18,9 @@ builder.Services.AddScoped<ChartRepository>();
 builder.Services.AddScoped<ProductRepository>();
 
 // register service layer
-// builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChartService, ChartService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 
 // add graphQL server

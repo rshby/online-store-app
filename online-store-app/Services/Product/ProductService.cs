@@ -28,7 +28,10 @@ namespace online_store_app.Services.Product
                // jika data tidak ditemukan
                if (products == null || products.Count == 0)
                {
-                  return null;
+                  tr.Dispose();
+
+                  // send error message
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("record not found").Build());
                }
 
                // success get all data products -> mapping to DTO
@@ -42,6 +45,7 @@ namespace online_store_app.Services.Product
                }).ToList();
 
                // return
+               tr.Complete();
                return response;
             }
             catch (Exception err)
@@ -67,7 +71,10 @@ namespace online_store_app.Services.Product
                // jika data tidak ditemukan
                if (product == null)
                {
-                  return null;
+                  tr.Dispose();
+
+                  // send error not found message
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("record not found").Build());
                }
 
                // success get data product by Id
@@ -81,6 +88,7 @@ namespace online_store_app.Services.Product
                };
 
                // return
+               tr.Complete();
                return response;
             }
             catch (Exception err)
