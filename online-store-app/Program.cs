@@ -11,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 // register DB Context
 string? connectionString = builder.Configuration.GetConnectionString("MySQLConnect");
 builder.Services.AddDbContext<OnlineStoreContext>(x => x.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)), ServiceLifetime.Transient);
-builder.Services.AddTransient<OnlineStoreContext>();
 
 // register layer Repository
 builder.Services.AddTransient<UserRepository>();
