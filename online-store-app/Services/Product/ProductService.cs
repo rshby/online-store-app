@@ -141,5 +141,53 @@ namespace online_store_app.Services.Product
          }
       }
 
+      // method to update data product
+      public async Task<ProductResponse?> UpdateProductAsync(UpdateProductRequest? request)
+      {
+         using (var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+         {
+            try
+            {
+               // validasi id product
+               var findProduct = await _productRepo.GetProductByIdAsync(tr, request.Id);
+
+               // jika product tidak ditemukan
+               if (findProduct == null)
+               {
+                  tr.Dispose();
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("record not found").Build());
+               }
+
+               // create entity newProduct
+               var newProduct = new Models.Entity.Product()
+               {
+                  Id = request.Id,
+                  Brand = request.Brand,
+                  Name = request.Name,
+                  Price = request.Price,
+                  Stock = request.Stock
+               };
+
+               // call procedure update in Repository
+               var resultUpdate = await _productRepo.UpdateProductAsync(tr, findProduct, newProduct);
+
+               // success update
+               tr.Complete();
+               return new ProductResponse()
+               {
+                  Id = resultUpdate?.Id,
+                  Brand = resultUpdate?.Brand,
+                  Name = resultUpdate?.Name,
+                  Price = resultUpdate?.Price,
+                  Stock = resultUpdate?.Stock
+               };
+            }
+            catch (Exception err)
+            {
+               tr.Dispose();
+               throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+            }
+         }
+      }
    }
 }

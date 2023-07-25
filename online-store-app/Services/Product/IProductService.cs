@@ -12,5 +12,8 @@ namespace online_store_app.Services.Product
 
       // method to insert/add new data product
       public Task<ProductResponse?> AddProductAsync(AddProductRequest? request);
+
+      // method to update data product
+      public Task<ProductResponse?> UpdateProductAsync(UpdateProductRequest? request);
    }
 }

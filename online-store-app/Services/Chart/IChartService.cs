@@ -12,5 +12,8 @@ namespace online_store_app.Services.Chart
 
       // method to add new chart
       public Task<ChartResponse?> AddNewChartAsync(AddChartRequest? request);
+
+      // method to update data
+      public Task<ChartResponse?> UpdateChartAsync(UpdateChartRequest? request);
    }
 }

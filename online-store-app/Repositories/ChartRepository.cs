@@ -42,6 +42,20 @@ namespace online_store_app.Repositories
          }
       }
 
+      // method get data chart by id
+      public async Task<Chart?> GetChartByIdAsync([Required] TransactionScope tr, int? id)
+      {
+         try
+         {
+            return await _db.Charts.AsQueryable().FirstOrDefaultAsync<Chart>(x => x.Id == id);
+         }
+         catch (Exception err)
+         {
+            tr.Dispose();
+            throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+         }
+      }
+
       // method get all data charts
       public async Task<List<Chart>?> GetAllChartsAsync([Required] TransactionScope tr)
       {
@@ -84,6 +98,23 @@ namespace online_store_app.Repositories
             tr.Dispose();
 
             // send error message
+            throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+         }
+      }
+
+      // method to update data chart
+      public async Task<Chart?> UpdateChartAsync([Required] TransactionScope tr, Chart? oldChart, Chart? newChart)
+      {
+         try
+         {
+            _db.Charts.Entry(oldChart).CurrentValues.SetValues(newChart);
+
+            await _db.SaveChangesAsync();
+            return newChart;
+         }
+         catch (Exception err)
+         {
+            tr.Dispose();
             throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
          }
       }

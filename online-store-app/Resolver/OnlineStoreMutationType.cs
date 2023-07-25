@@ -27,5 +27,15 @@ namespace online_store_app.Resolver
       [GraphQLName("update_user")]
       [UseMutationConvention]
       public async Task<UserResponse?> UpdateUserAsync([Service] IUserService userService, [Required] UpdateUserRequest? request) => await userService.UpdateUserAsync(request);
+
+      // handler to update data product
+      [GraphQLName("update_product")]
+      [UseMutationConvention]
+      public async Task<ProductResponse?> UpdateProductAsync([Service] IProductService productService, [Required] UpdateProductRequest? request) => await productService.UpdateProductAsync(request);
+
+      // handler to update data chart
+      [GraphQLName("update_chart")]
+      [UseMutationConvention]
+      public async Task<ChartResponse?> UpdateChartAsync([Service] IChartService chartService, [Required] UpdateChartRequest? request) => await chartService.UpdateChartAsync(request);
    }
 }

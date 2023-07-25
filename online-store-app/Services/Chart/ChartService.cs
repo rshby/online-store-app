@@ -172,5 +172,95 @@ namespace online_store_app.Services.Chart
             }
          }
       }
+
+      // method to update chart
+      public async Task<ChartResponse?> UpdateChartAsync(UpdateChartRequest? request)
+      {
+         using (var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+         {
+            try
+            {
+               List<Task>? validasiTask = new List<Task>();
+
+               var oldChart = new Models.Entity.Chart();
+               var findUser = new Models.Entity.User();
+               var findProduct = new Models.Entity.Product();
+
+               // validasi chart_id
+               Task? validasiChartIdTask = Task.Run(() =>
+               {
+                  oldChart = _chartRepo.GetChartByIdAsync(tr, request?.Id).Result;
+               });
+               validasiTask.Add(validasiChartIdTask);
+
+               // validasi user_id
+               Task? validasiUserIdTask = Task.Run(() =>
+               {
+                  findUser = _userRepo.GetUserByIdAsync(tr, request?.UserId).Result;
+               });
+               validasiTask.Add(validasiUserIdTask);
+
+               // validasi product_id
+               Task? validasiProductIdTask = Task.Run(() =>
+               {
+                  findProduct = _productRepo.GetProductByIdAsync(tr, request?.ProductId).Result;
+               });
+               validasiTask.Add(validasiProductIdTask);
+
+               // wait all
+               await Task.WhenAll(validasiTask);
+
+               // cek validasi
+               if (oldChart == null)
+               {
+                  tr.Dispose();
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("record not found").Build());
+               }
+
+               if (findUser == null)
+               {
+                  tr.Dispose();
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("user not found").Build());
+               }
+
+               if (findProduct == null)
+               {
+                  tr.Dispose();
+                  throw new GraphQLException(new ErrorBuilder().SetMessage("product not found").Build());
+               }
+
+               // create entity
+               var newChart = new Models.Entity.Chart()
+               {
+                  Id = request?.Id,
+                  UserId = request?.UserId,
+                  ProductId = request?.ProductId,
+                  Amount = request?.Amount,
+                  TotalPrice = request?.Amount * findProduct.Price
+               };
+
+               // call procedure update in Repository
+               var resultUpdate = await _chartRepo.UpdateChartAsync(tr, oldChart, newChart);
+
+               // success update
+               tr.Complete();
+               return new ChartResponse()
+               {
+                  Id = resultUpdate?.Id,
+                  UserId= resultUpdate?.UserId,
+                  ProductId= resultUpdate?.ProductId,
+                  Amount = resultUpdate?.Amount,
+                  TotalPrice = resultUpdate?.TotalPrice,
+                  User = findUser,
+                  Product = findProduct
+               };
+            }
+            catch (Exception err)
+            {
+               tr.Dispose();
+               throw new GraphQLException(new ErrorBuilder().SetMessage(err.Message).Build());
+            }
+         }
+      }
    }
 }

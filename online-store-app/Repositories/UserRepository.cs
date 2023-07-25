@@ -50,19 +50,7 @@ namespace online_store_app.Repositories
       {
          try
          {
-            User? user = await _db.Users.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
-
-            // cek jika data tidak ditemukan
-            if (user == null)
-            {
-               tr.Dispose();
-
-               // send error message
-               throw new GraphQLException(new ErrorBuilder().SetMessage("record not found").Build());
-            }
-
-            // success get data users by Id
-            return user;
+            return await _db.Users.AsQueryable().FirstOrDefaultAsync<User>(x => x.Id == id);
          }
          catch (Exception err)
          {
